@@ -12,7 +12,18 @@ class GameObject
     @width, @height = width, height
     @tile = tile
   end
-
+  def x=(x)
+    @x=x;
+  end
+  def y=(y)
+    @y=y;
+  end
+  def width=(width)
+    @width=width;
+  end
+  def height=(height)
+    @height=height;
+  end
   def draw
     @tile.draw(@x, @y, 0, 1, 1)
   end
@@ -36,9 +47,8 @@ class Ball < GameObject
       false
     end
   end
-  def start
-    @speed_x = 2;
-    @speed_y = 1;
+  def speed(x, y)
+    @speed_x, @speed_y = x, y;
   end
   def move
     if(@x >= $width || @x <= 0)
@@ -57,6 +67,22 @@ class Platform < GameObject
   # tile - изображение которым будет отрисована платформа
   def initialize (x = 0, y = $height, width = 8, tile)
     super(x, y, width, tile.height, tile)
+    @have_ball = false
+  end
+  #Помещает мячик на платформу
+  def put_ball(ball)
+    @have_ball = true
+    @ball = ball
+    @ball.x = @x + (@width/2)*@tile.width;
+    @ball.y = @y-@tile.height;
+  end
+  #Запускает мяч с указанной скоростью
+  def run_ball(speed_x = 0, speed_y = -1)
+    if(@have_ball)
+      @ball.y = @y-2*@tile.height;
+      @ball.speed(speed_x, speed_y);
+      @have_ball = false;
+    end
   end
   #Влево
   def to_left
@@ -65,6 +91,9 @@ class Platform < GameObject
     else
       @x = @x - $step;
     end
+    if(@have_ball)
+      @ball.x = @x + (@width/2)*@tile.width;
+    end
   end
   #В право
   def to_right
@@ -72,6 +101,9 @@ class Platform < GameObject
       @x = $width - @width*@tile.width
     else
       @x = @x + $step;
+    end
+    if(@have_ball)
+      @ball.x = @x + (@width/2)*@tile.width;
     end
   end
   #Отрисовка платформы
@@ -87,7 +119,6 @@ class GameWindow < Gosu::Window
     @tiles = *Gosu::Image.load_tiles(self, path, 8, 8, false)
     @player = Platform.new(0, $height-8, 8, @tiles[25])
     @ball = Ball.new(20, $height-16, 1, 1, @tiles[14])
-    @ball.start
   end
 
   def initialize
@@ -103,6 +134,8 @@ class GameWindow < Gosu::Window
       @direction = :left
     when Gosu::KbRight then
       @direction = :right
+    when Gosu::KbUp then
+      @player.run_ball(0, -2);
     else
       @direction = :none
     end
@@ -118,9 +151,12 @@ class GameWindow < Gosu::Window
       @player.to_left
     when :right then
       @player.to_right
-    else
     end
-    @ball.move
+    if(@ball.collide_with(@player))
+      @player.put_ball(@ball);
+    else
+      @ball.move
+    end
   end
 
   def draw
