@@ -112,6 +112,9 @@ class Platform < GameObject
       @tile.draw(@x+i*@tile.width, @y, 0, 1, 1)
     end
   end
+  def width
+    @width*@tile.width
+  end
 end
 
 class GameWindow < Gosu::Window
@@ -135,7 +138,14 @@ class GameWindow < Gosu::Window
     when Gosu::KbRight then
       @direction = :right
     when Gosu::KbUp then
-      @player.run_ball(0, -2);
+
+      case @direction
+      when :left then
+        @player.run_ball(-2, -2);
+      when :right then
+        @player.run_ball(2, -2);
+      end
+
     else
       @direction = :none
     end
