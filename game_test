@@ -1,0 +1,23 @@
+require_relative '../game.rb'
+require 'test/unit'
+
+class TestObject < Test::Unit::TestCase
+	def test_center
+		assert_equal({:x => 2, :y => 2}, Game::Object.new(0, 0, 4, 4, nil).center)
+		assert_equal({:x => 0, :y => 0}, Game::Object.new(0, 0, 0, 0, nil).center)
+		assert_equal({:x => -1, :y => -1}, Game::Object.new(-1, -1, 0, 0, nil).center)
+	end
+	
+	def test_collision
+		obj = Game::Object.new(2, 2, 1, 1, nil);
+		assert_equal(true, Game::Object.new(0, 0, 4, 4, nil).collides(obj))
+		assert_equal(false, Game::Object.new(0, 0, 1, 1, nil).collides(obj))
+		assert_equal(false, Game::Object.new(0, 0, 0, 0, nil).collides(obj))
+	end	
+end
+
+class TestPlayer < Test::Unit::TestCase
+	def test_initialize
+		assert_equal({:x => 2, :y => 2}, Game::Player.new(0, 0, 4, 4, nil).center)
+	end
+end
