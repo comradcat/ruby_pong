@@ -46,6 +46,17 @@ module Game
 		#move platform to the right side
 		def to_right
 		end
+		#Check bonus collision with platform
+		#Check brick, wall collision with ball
+		def collides(obj)
+		end
+		#Move platform and ball
+		def move
+			#move ball
+			#move platform, check collision with ball
+		end
+		#Ball is object
+		attr_accessor :ball
 		private
 		attr_accessor :speed
 	end
