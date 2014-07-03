@@ -1,2 +1,4 @@
-Simple game on Ruby
+#Ruby Pong
+```bash
 install gosu
+```
