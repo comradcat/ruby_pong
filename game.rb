@@ -35,16 +35,21 @@ module Game
 
 	#Player(platform) class
 	class Player < Object
+		alias :obj_collides :collides
+		
 		def initialize(*parent_args, speed) 
 			super(*parent_args)
 			raise ArgumentError, 'Argument is not array!' unless speed.is_a?(Array);
 			raise ArgumentError, 'Array have not numeric or float elements!' unless speed.all?(|x| x.is_a(Float) || x.is_a(Fixnum)); 
+			@step = 2
 		end
 		#move platform to the left side
 		def to_left
+			@x = @x - @step
 		end
 		#move platform to the right side
 		def to_right
+			@x = @x + @step
 		end
 		#Check bonus collision with platform
 		#Check brick, wall collision with ball
@@ -53,11 +58,15 @@ module Game
 		#Move platform and ball
 		def move
 			#move ball
-			#move platform, check collision with ball
+			@ball.x, @ball.y += *@speed
+			#check ball collision with walls
+			#check collision with ball
+			if(self.obj_collides(@ball)) 
+				*@speed =-*@speed
+			end
 		end
 		#Ball is object
 		attr_accessor :ball
-		private
 		attr_accessor :speed
 	end
 
