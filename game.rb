@@ -36,11 +36,11 @@ module Game
 	#Player(platform) class
 	class Player < Object
 		alias :obj_collides :collides
-		
-		def initialize(*parent_args, speed) 
+
+		def initialize(*parent_args, speed)
 			super(*parent_args)
-			raise ArgumentError, 'Argument is not array!' unless speed.is_a?(Array);
-			raise ArgumentError, 'Array have not numeric or float elements!' unless speed.all?(|x| x.is_a(Float) || x.is_a(Fixnum)); 
+			#raise ArgumentError, 'Argument is not array!' unless speed.is_a?(Array);
+			#raise ArgumentError, 'Array have not numeric or float elements!' unless speed.all?(|x| x.is_a(Float) || x.is_a(Fixnum));
 			@step = 2
 		end
 		#move platform to the left side
@@ -58,11 +58,20 @@ module Game
 		#Move platform and ball
 		def move
 			#move ball
-			@ball.x, @ball.y += *@speed
+			#@ball.x, @ball.y += @speed[0], @speed[1]
+			@ball.x = @ball.x + @speed[0];
+			@ball.y = @ball.y + @speed[1];
 			#check ball collision with walls
 			#check collision with ball
-			if(self.obj_collides(@ball)) 
-				*@speed =-*@speed
+			if(self.obj_collides(@ball))
+				#*@speed =-*@speed
+				@speed[0]*=-1;
+				@speed[1]*=-1;
+			end
+		end
+		def draw
+			for i in 0..@width
+				@tile.draw(@x+i*@tile.width, @y, 0, 1, 1)
 			end
 		end
 		#Ball is object
@@ -71,17 +80,18 @@ module Game
 	end
 
 	class Manager
-		def initialize(width, height)
+		def initialize(width, height, window, *tiles)
 			@width, @height = width, height
-			@player = Player.new()
+			@tiles = *tiles
+			@player = Player.new(0, $height-8, 8, 1, @tiles[25], [0, 0])
 		end
 		#Next iteration in game
 		def next_step!
-			self.stack.each do |obj|
-				if(@player.collides(obj)) then
-					
-				end
-			end
+			#self.stack.each do |obj|
+			#	if(@player.collides(obj)) then
+			#	end
+			#end
+			@player.draw
 		end
 		private
 		attr_accessor :stack
