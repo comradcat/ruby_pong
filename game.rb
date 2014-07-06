@@ -1,3 +1,4 @@
+# @author ComradCat
 module Game
 	#Basic game class
 	class Object
@@ -22,6 +23,7 @@ module Game
 		end
 		#Collision check
 		def collides(object)
+			#rewrite
 			center = self.center
 			collision_x = (object.x <= center[:x]) && (center[:x] <= (object.x + object.width));
 			collision_y = ((object.y - object.height) <= center[:y]) && (center[:y] <= object.y);
@@ -33,15 +35,19 @@ module Game
 		end
 	end
 
-	#Player(platform) class
-	class Player < Object
-		alias :obj_collides :collides
+	#Ball class
+	class Ball < Game::Object
+		def initialize(x, y, width, height, tile, *speed)
+			super(x, y, width, height, tile)
+			@speed = *speed
+		end
+	end
 
-		def initialize(*parent_args, speed)
-			super(*parent_args)
-			#raise ArgumentError, 'Argument is not array!' unless speed.is_a?(Array);
-			#raise ArgumentError, 'Array have not numeric or float elements!' unless speed.all?(|x| x.is_a(Float) || x.is_a(Fixnum));
-			@step = 2
+	#Player(platform) class
+	class Player < Game::Object
+		def initialize(x, y, width, height, tile)
+			super(x, y, width, height, tile)
+			@step = 5
 		end
 		#move platform to the left side
 		def to_left
@@ -51,39 +57,30 @@ module Game
 		def to_right
 			@x = @x + @step
 		end
-		#Check bonus collision with platform
-		#Check brick, wall collision with ball
-		def collides(obj)
-		end
-		#Move platform and ball
-		def move
-			#move ball
-			#@ball.x, @ball.y += @speed[0], @speed[1]
-			@ball.x = @ball.x + @speed[0];
-			@ball.y = @ball.y + @speed[1];
-			#check ball collision with walls
-			#check collision with ball
-			if(self.obj_collides(@ball))
-				#*@speed =-*@speed
-				@speed[0]*=-1;
-				@speed[1]*=-1;
-			end
-		end
 		def draw
 			for i in 0..@width
 				@tile.draw(@x+i*@tile.width, @y, 0, 1, 1)
 			end
 		end
-		#Ball is object
-		attr_accessor :ball
-		attr_accessor :speed
+		def width
+			(@width+1)*@tile.width
+		end
+		def height
+			@height*@tile.height
+		end
 	end
 
 	class Manager
 		def initialize(width, height, window, *tiles)
 			@width, @height = width, height
 			@tiles = *tiles
-			@player = Player.new(0, $height-8, 8, 1, @tiles[25], [0, 0])
+			@player = Player.new(0, @height-8, 8, 1, @tiles[25])
+			@ball = Ball.new(@player.x+@player.width/2-8,
+											 @player.y - @player.height, 1, 1, @tiles[14], *[0, 0]);
+		end
+		def draw
+			@player.draw
+			@ball.draw
 		end
 		#Next iteration in game
 		def next_step!
@@ -91,9 +88,25 @@ module Game
 			#	if(@player.collides(obj)) then
 			#	end
 			#end
-			@player.draw
+			if @player.collides(@ball) then
+				puts 'collides!'
+			end
+			if @player.x <= 0
+				@player.x = 0
+			elsif (@player.x + @player.width) >= @width
+				@player.x = @width - @player.width
+			end
 		end
-		private
-		attr_accessor :stack
+
+		def do(command_id)
+			case command_id
+			when :move_left then
+				@player.to_left
+			when :move_right then
+				@player.to_right
+			end
+		end
+		#private
+		#attr_accessor :stack
 	end
 end
