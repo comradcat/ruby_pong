@@ -6,16 +6,24 @@ module Game
 		attr_accessor :x, :y, :width, :height
 		#Image
 		attr_accessor :tile
-		attr_reader :center
+		attr_reader :right, :bottom
 		#constructor
 		def initialize(x, y, width, height, tile)
 			@x, @y = x, y
 			@width, @height = width, height
 			@tile = tile
 		end
-		#Return center of object box
-		def center
-			{:x => @x + @width/2, :y => @y + @height/2}
+		def left
+			self.x - @tile.width*0.8
+		end
+		def right
+			self.x + self.width + @tile.width*0.8
+		end
+		def top
+			self.y - @tile.height*0.8
+		end
+		def bottom
+			self.y + self.height + @tile.height*0.8
 		end
 		#draw image in current coordinates
 		def draw
@@ -23,14 +31,16 @@ module Game
 		end
 		#Collision check
 		def collides(object)
-			#rewrite
-			center = self.center
-			collision_x = (object.x <= center[:x]) && (center[:x] <= (object.x + object.width));
-			collision_y = ((object.y - object.height) <= center[:y]) && (center[:y] <= object.y);
-			if(collision_x && collision_y)
-				true
-			else
+			if(self.bottom < object.top)
+				false	
+			elsif(self.top > object.bottom)
 				false
+			elsif(self.right < object.left)
+				false
+			elsif(self.left > object.right)
+				false
+			else
+				true
 			end
 		end
 	end
