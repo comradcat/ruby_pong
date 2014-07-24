@@ -55,17 +55,25 @@ module Game
 
 	#Player(platform) class
 	class Player < Game::Object
+		attr_reader :speed
 		def initialize(x, y, width, height, tile)
 			super(x, y, width, height, tile)
 			@step = 5
+			@speed = 0;
 		end
 		#move platform to the left side
 		def to_left
 			@x = @x - @step
+			@speed = -@step
 		end
 		#move platform to the right side
 		def to_right
 			@x = @x + @step
+			@speed = @step
+		end
+
+		def do_nothing
+			@speed = 0
 		end
 		def draw
 			for i in 0..@width
@@ -94,12 +102,10 @@ module Game
 		end
 		#Next iteration in game
 		def next_step!
-			#self.stack.each do |obj|
-			#	if(@player.collides(obj)) then
-			#	end
-			#end
 			if @player.collides(@ball) then
-				puts 'collides!'
+				# @TODO Think about architecture.
+				# add speed of ball and platform?
+				#
 			end
 			if @player.x <= 0
 				@player.x = 0
@@ -114,9 +120,9 @@ module Game
 				@player.to_left
 			when :move_right then
 				@player.to_right
+			else
+				@player.do_nothing
 			end
 		end
-		#private
-		#attr_accessor :stack
 	end
 end
