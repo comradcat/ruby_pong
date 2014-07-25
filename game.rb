@@ -43,8 +43,26 @@ module Game
 				true
 			end
 		end
+		#Call this when object collides with other object
+		def thud(other)
+			#do some stuff
+			other.thud!
+		end
+		#Will call by another object
+		#TODO: It's 
+		def thud!
+		end
 	end
-
+	#wall class
+	class Wall < Game::Object
+		def draw
+			for i in 0..@width
+				for j in 0..@height
+					@tile.draw(@x+i*@tile.width, @y+j*@tile.height, 0, 1, 1)
+				end
+			end
+		end
+	end
 	#Ball class
 	class Ball < Game::Object
 		def initialize(x, y, width, height, tile, *speed)
@@ -59,21 +77,14 @@ module Game
 		def initialize(x, y, width, height, tile)
 			super(x, y, width, height, tile)
 			@step = 5
-			@speed = 0;
 		end
 		#move platform to the left side
 		def to_left
 			@x = @x - @step
-			@speed = -@step
 		end
 		#move platform to the right side
 		def to_right
 			@x = @x + @step
-			@speed = @step
-		end
-
-		def do_nothing
-			@speed = 0
 		end
 		def draw
 			for i in 0..@width
@@ -92,21 +103,22 @@ module Game
 		def initialize(width, height, window, *tiles)
 			@width, @height = width, height
 			@tiles = *tiles
-			@player = Player.new(0, @height-8, 8, 1, @tiles[25])
-			@ball = Ball.new(@player.x+@player.width/2-8,
-											 @player.y - @player.height, 1, 1, @tiles[14], *[0, 0]);
+			@player = Player.new(0, @height-16, 8, 1, @tiles[25])
+			@lwall = Wall.new(0, 0, 0, @height, @tiles[27]) #left wall
+			@rwall = Wall.new(width-@tiles[27].width, 0, 0, height, @tiles[27]) #right wall
+			@twall = Wall.new(0, -1, width, 0, @tiles[27]) #top wall
+			@bwall = Wall.new(0, height-@tiles[28].width, width, 1, @tiles[28])
+			@objects = [@lwall, @rwall, @twall, @bwall]
 		end
 		def draw
 			@player.draw
-			@ball.draw
+			#@ball.draw
+			@objects.each do |wall|
+				wall.draw
+			end
 		end
 		#Next iteration in game
 		def next_step!
-			if @player.collides(@ball) then
-				# @TODO Think about architecture.
-				# add speed of ball and platform?
-				#
-			end
 			if @player.x <= 0
 				@player.x = 0
 			elsif (@player.x + @player.width) >= @width
@@ -120,8 +132,6 @@ module Game
 				@player.to_left
 			when :move_right then
 				@player.to_right
-			else
-				@player.do_nothing
 			end
 		end
 	end
